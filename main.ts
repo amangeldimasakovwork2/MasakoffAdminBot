@@ -22,7 +22,7 @@ const PLAN = {
 const DEFAULT_MARZBAN_URL = "http://89.23.97.127:3286/dashboard/login";
 const DEFAULT_ADMIN_USER = "05";
 const DEFAULT_ADMIN_PASS = "05";
-const DEFAULT_CHANNELS = ["@HappService", "@MasakoffVpns"];
+const DEFAULT_CHANNELS = ["@HappService", "@MasakoffVpns", "@Master_vpnss"];
 // -------------------- Config Helpers --------------------
 async function getConfig(key: string, defaultValue: string): Promise<string> {
   const entry = await kv.get(["config", key]);
@@ -379,3 +379,4 @@ serve(async (req) => {
   return new Response("ok");
 
 });
+
