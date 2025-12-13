@@ -342,7 +342,7 @@ serve(async (req) => {
         return new Response("ok");
       }
     }
-    if (!((isAdmin && text === "/start") || (isHelperChannel && text === "/start"))) {
+    if (!((isAdmin && text === "/start") || (isHelperChannel && text === "start"))) {
       if (isAdmin) {
         await sendMessage(chatId, "Use /start to get your subscription or /admin for admin panel.");
       }
@@ -385,3 +385,4 @@ serve(async (req) => {
   }
   return new Response("ok");
 });
+
