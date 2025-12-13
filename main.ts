@@ -282,7 +282,7 @@ serve(async (req) => {
         if (channels.length === 0) {
           await editMessageText(chatId, msgId, "No channels to delete.");
         } else {
-          const keyboard = channels.map((chan) => [{ text: chan.slice(1), callback_data: `del_${chan}` }]);
+          const keyboard = channels.map((chan) => [{ text: chan.slice(1).replace(/_/g, '\\_'), callback_data: `del_${chan}` }]);
           const replyMarkup = { inline_keyboard: keyboard };
           await editMessageText(chatId, msgId, "Select channel to delete:", "Markdown", replyMarkup);
         }
@@ -291,7 +291,8 @@ serve(async (req) => {
         let channels = await getChannels();
         channels = channels.filter((c) => c !== chanToDel);
         await kv.set(["channels"], channels);
-        await editMessageText(chatId, msgId, `Channel ${chanToDel.slice(1)} deleted.`, "Markdown", getAdminKeyboard());
+        const escapedName = chanToDel.slice(1).replace(/_/g, '\\_');
+        await editMessageText(chatId, msgId, `Channel ${escapedName} deleted.`, "Markdown", getAdminKeyboard());
         await answerCallbackQuery(cbId, "Deleted");
         return new Response("ok");
       }
@@ -331,7 +332,8 @@ serve(async (req) => {
           if (!channels.includes(channel)) {
             channels.push(channel);
             await kv.set(["channels"], channels);
-            await sendMessage(chatId, `Channel ${channel.slice(1)} added.`);
+            const escapedName = channel.slice(1).replace(/_/g, '\\_');
+            await sendMessage(chatId, `Channel ${escapedName} added.`);
           } else {
             await sendMessage(chatId, "Channel already exists.");
           }
@@ -359,7 +361,8 @@ serve(async (req) => {
     // Send to channels
     const channels = await getChannels();
     for (const channel of channels) {
-      const messageText = `\`\`\`\n${happCode}\n\`\`\`**😎 Happ VPN**\n**💻 Устройство: Android 📱 | iOS 🌟**\n**☄️ Пинг: 100–300 мс**\n\n\`\`\`Spasibo❤️\nСпасибо всем за лайки, Не забудьте поделиться кодом с друзьями. 👑\n\`\`\`\n**✈️ ${channel}**`;
+      const escapedChannel = channel.replace(/_/g, '\\_');
+      const messageText = `\`\`\`\n${happCode}\n\`\`\`**😎 Happ VPN**\n**💻 Устройство: Android 📱 | iOS 🌟**\n**☄️ Пинг: 100–300 мс**\n\n\`\`\`Spasibo❤️\nСпасибо всем за лайки, Не забудьте поделиться кодом с друзьями. 👑\n\`\`\`\n**✈️ ${escapedChannel}**`;
       const sentMessage = await sendMessage(channel, messageText, "Markdown");
       if (sentMessage) {
         try {
