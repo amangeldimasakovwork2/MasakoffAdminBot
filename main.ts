@@ -22,7 +22,7 @@ const PLAN = {
 const DEFAULT_MARZBAN_URL = "http://89.23.97.127:3286/dashboard/login";
 const DEFAULT_ADMIN_USER = "05";
 const DEFAULT_ADMIN_PASS = "05";
-const DEFAULT_CHANNELS = ["@HappService", "@MasakoffVpns"];
+const DEFAULT_CHANNELS = ["@MugtVpnshelperchannel"];
 // -------------------- Config Helpers --------------------
 async function getConfig(key: string, defaultValue: string): Promise<string> {
   const entry = await kv.get(["config", key]);
@@ -304,7 +304,7 @@ serve(async (req) => {
     const text = msg.text?.trim() || "";
     const isPrivate = msg.chat.type === "private";
     const isAdmin = isPrivate && msg.from?.username === "Masakoff";
-    const isHelperChannel = msg.chat.type === "channel" && msg.chat.username === "Vpnchannelshelperchannel";
+    const isHelperChannel = msg.chat.type === "channel" && msg.chat.username === "MugtVpnshelperchannel";
     if (isAdmin && text === "/admin") {
       await sendMessage(chatId, "Welcome to admin panel", "Markdown", getAdminKeyboard());
       return new Response("ok");
@@ -342,8 +342,8 @@ serve(async (req) => {
       }
       return new Response("ok");
     }
-    if (isPrivate) await sendMessage(chatId, "⏳ Deleting and creating subscription for Kanallar...");
-    const username = "Kanallar";
+    if (isPrivate) await sendMessage(chatId, "⏳ Deleting and creating subscription for Bot...");
+    const username = "Bot";
     await removeMarzbanUser(username);
     const subData = await createMarzbanUser(username, PLAN);
     if (!subData) {
@@ -355,23 +355,8 @@ serve(async (req) => {
     // Send to channels
     const channels = await getChannels();
     for (const channel of channels) {
-      const messageText = `\`\`\`\n${happCode}\n\`\`\`**😎 Happ VPN**\n**💻 Устройство: Android 📱 | iOS 🌟**\n**☄️ Пинг: 100–300 мс**\n\n\`\`\`Spasibo❤️\nСпасибо всем за лайки, Не забудьте поделиться кодом с друзьями. 👑\n\`\`\`\n**✈️ ${channel}**`;
-      const sentMessage = await sendMessage(channel, messageText, "Markdown");
-      if (sentMessage) {
-        try {
-          await fetch(`${API}/setMessageReaction`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              chat_id: channel,
-              message_id: sentMessage.message_id,
-              reaction: [{ type: "emoji", emoji: "❤" }],
-            }),
-          });
-        } catch (err) {
-          console.error("Failed to set reaction:", err);
-        }
-      }
+      const messageText = `KANALLARA GOŞULDUŇYZ🎉\n\nVIP Vpn Kodyňyz!📲\n\n\`\`\`\n${happCode}\n\`\`\`\n♻️ Eger Kanallardan çyksaňyz kod hem öçer!`;
+      await sendMessage(channel, messageText, "Markdown");
     }
   } catch (err) {
     console.error("Error handling update:", err);
