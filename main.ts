@@ -17,7 +17,7 @@ const HAPP_API_URL = "https://crypto.happ.su/api.php";
 const kv = await Deno.openKv();
 // -------------------- Constants --------------------
 const PLAN = {
-  traffic_gb: 0, // 0 for unlimited
+  traffic_gb: 0,
 };
 const DEFAULT_MARZBAN_URL = "http://89.23.97.127:3286/dashboard/login";
 const DEFAULT_ADMIN_USER = "05";
@@ -165,21 +165,18 @@ async function createMarzbanUser(username: string, plan: typeof PLAN): Promise<{
     "Accept": "application/json",
   };
   const userApiUrl = new URL("/api/user", marzbanBaseUrl).toString();
-  const dataLimitBytes = plan.traffic_gb === 0 ? 0 : plan.traffic_gb * 1024 * 1024 * 1024;
+  const dataLimitBytes = plan.traffic_gb * 1024 * 1024 * 1024;
   let expire: number | null = null;
   const profileTitleStr = `${username}`;
   const profileTitleB64 = encodeBase64(profileTitleStr);
   const announceB64 = encodeBase64("@PabloTest_RoBot");
   const supportUrl = "https://t.me/Masakoff";
   const profileWebPageUrl = "https://t.me/MasakoffVpns";
-  const randomNum = Math.floor(Math.random() * 900) + 100;
   const payload = {
     username: username,
     proxies: {
-      vmess: { id: crypto.randomUUID() },
-      vless: { id: crypto.randomUUID(), flow: "" },
-      trojan: { password: `tj_${username}_${randomNum}` },
-      shadowsocks: { method: "aes-256-gcm", password: `ss_${username}_${randomNum}` }
+      vless: { id: crypto.randomUUID() },
+      shadowsocks: { method: "aes-256-gcm", password: `ss_${username}_${Math.floor(Math.random() * 900) + 100}` }
     },
     data_limit: dataLimitBytes,
     expire: expire,
@@ -363,8 +360,8 @@ serve(async (req) => {
       return new Response("ok");
     }
     const happCode = await convertToHappCode(subData.link) || subData.link;
-    const trafficText = PLAN.traffic_gb === 0 ? "Unlimited" : `${PLAN.traffic_gb} GB`;
-    if (isPrivate) await sendMessage(chatId, `✅ Subscription created!\nID: ${username}\nExpires: ${subData.expiryDate}\nTraffic: ${trafficText}\n\nCode:\n\`\`\`\n${happCode}\n\`\`\``);
+    const trafficStr = PLAN.traffic_gb === 0 ? "Unlimited" : `${PLAN.traffic_gb} GB`;
+    if (isPrivate) await sendMessage(chatId, `✅ Subscription created!\nID: ${username}\nExpires: ${subData.expiryDate}\nTraffic: ${trafficStr}\n\nCode:\n\`\`\`\n${happCode}\n\`\`\``);
     // Send to channels
     const channels = await getChannels();
     for (const channel of channels) {
