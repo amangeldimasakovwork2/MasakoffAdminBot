@@ -17,7 +17,7 @@ const HAPP_API_URL = "https://crypto.happ.su/api.php";
 const kv = await Deno.openKv();
 // -------------------- Constants --------------------
 const PLAN = {
-  traffic_gb: 100,
+  traffic_gb: 0, // 0 for unlimited
 };
 const DEFAULT_MARZBAN_URL = "http://89.23.97.127:3286/dashboard/login";
 const DEFAULT_ADMIN_USER = "05";
@@ -165,16 +165,22 @@ async function createMarzbanUser(username: string, plan: typeof PLAN): Promise<{
     "Accept": "application/json",
   };
   const userApiUrl = new URL("/api/user", marzbanBaseUrl).toString();
-  const dataLimitBytes = plan.traffic_gb * 1024 * 1024 * 1024;
+  const dataLimitBytes = plan.traffic_gb === 0 ? 0 : plan.traffic_gb * 1024 * 1024 * 1024;
   let expire: number | null = null;
   const profileTitleStr = `${username}`;
   const profileTitleB64 = encodeBase64(profileTitleStr);
   const announceB64 = encodeBase64("@PabloTest_RoBot");
   const supportUrl = "https://t.me/Masakoff";
   const profileWebPageUrl = "https://t.me/MasakoffVpns";
+  const randomNum = Math.floor(Math.random() * 900) + 100;
   const payload = {
     username: username,
-    proxies: { shadowsocks: { method: "aes-256-gcm", password: `ss_${username}_${Math.floor(Math.random() * 900) + 100}` } },
+    proxies: {
+      vmess: { id: crypto.randomUUID() },
+      vless: { id: crypto.randomUUID(), flow: "" },
+      trojan: { password: `tj_${username}_${randomNum}` },
+      shadowsocks: { method: "aes-256-gcm", password: `ss_${username}_${randomNum}` }
+    },
     data_limit: dataLimitBytes,
     expire: expire,
     status: "active",
@@ -357,7 +363,8 @@ serve(async (req) => {
       return new Response("ok");
     }
     const happCode = await convertToHappCode(subData.link) || subData.link;
-    if (isPrivate) await sendMessage(chatId, `✅ Subscription created!\nID: ${username}\nExpires: ${subData.expiryDate}\nTraffic: ${PLAN.traffic_gb} GB\n\nCode:\n\`\`\`\n${happCode}\n\`\`\``);
+    const trafficText = PLAN.traffic_gb === 0 ? "Unlimited" : `${PLAN.traffic_gb} GB`;
+    if (isPrivate) await sendMessage(chatId, `✅ Subscription created!\nID: ${username}\nExpires: ${subData.expiryDate}\nTraffic: ${trafficText}\n\nCode:\n\`\`\`\n${happCode}\n\`\`\``);
     // Send to channels
     const channels = await getChannels();
     for (const channel of channels) {
@@ -385,6 +392,3 @@ serve(async (req) => {
   }
   return new Response("ok");
 });
-
-
-
