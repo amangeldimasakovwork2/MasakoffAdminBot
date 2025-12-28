@@ -169,7 +169,7 @@ async function createMarzbanUser(username: string, plan: typeof PLAN): Promise<{
   let expire: number | null = null;
   const profileTitleStr = `${username}`;
   const profileTitleB64 = encodeBase64(profileTitleStr);
-  const announceB64 = encodeBase64("@PabloTest_RoBot");
+  const announceB64 = encodeBase64("@MasakoffAdminBot");
   const supportUrl = "https://t.me/Masakoff";
   const profileWebPageUrl = "https://t.me/MasakoffVpns";
   const payload = {
@@ -351,8 +351,8 @@ serve(async (req) => {
       }
       return new Response("ok");
     }
-    if (isPrivate) await sendMessage(chatId, "⏳ Deleting and creating subscription for MasakoffChannels...");
-    const username = "MasakoffChannels";
+    if (isPrivate) await sendMessage(chatId, "⏳ Deleting and creating subscription for Masakoff...");
+    const username = "Masakoff";
     await removeMarzbanUser(username);
     const subData = await createMarzbanUser(username, PLAN);
     if (!subData) {
