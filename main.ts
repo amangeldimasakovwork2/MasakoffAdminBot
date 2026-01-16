@@ -1,4 +1,4 @@
-// main.ts test
+// main.ts
 // 🤖 Happ Seller Bot for VPN Subscriptions
 // 📱 Provides VPN subscriptions for Happ app
 // 💾 Uses Deno KV for user data (subscriptions, trial used)
@@ -390,3 +390,4 @@ serve(async (req) => {
   return new Response("ok");
 
 });
+
