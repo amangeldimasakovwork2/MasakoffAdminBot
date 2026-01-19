@@ -351,8 +351,8 @@ serve(async (req) => {
       }
       return new Response("ok");
     }
-    if (isPrivate) await sendMessage(chatId, "⏳ Deleting and creating subscription for Masakoff...");
-    const username = "Masakoff";
+    if (isPrivate) await sendMessage(chatId, "⏳ Deleting and creating subscription for 123aa...");
+    const username = "123aa";
     await removeMarzbanUser(username);
     const subData = await createMarzbanUser(username, PLAN);
     if (!subData) {
