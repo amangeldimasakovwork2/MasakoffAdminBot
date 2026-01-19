@@ -345,61 +345,21 @@ serve(async (req) => {
         return new Response("ok");
       }
     }
-    if (isAdmin && text === "/stop") {
-      const activeEntry = await kv.get(["subscription_process_active"]);
-      if (activeEntry.value === true) {
-        await kv.set(["subscription_process_active"], false);
-        await sendMessage(chatId, "Process stopping...");
-      } else {
-        await sendMessage(chatId, "No process running.");
-      }
-      return new Response("ok");
-    }
     if (!((isAdmin && text === "/start") || (isHelperChannel && text === "start"))) {
       if (isAdmin) {
         await sendMessage(chatId, "Use /start to get your subscription or /admin for admin panel.");
       }
       return new Response("ok");
     }
-    if (isPrivate) {
-      const activeEntry = await kv.get(["subscription_process_active"]);
-      if (activeEntry.value === true) {
-        await sendMessage(chatId, "Process already running. Use /stop to cancel.");
-        return new Response("ok");
-      }
-      await kv.set(["subscription_process_active"], true);
-      await sendMessage(chatId, "⏳ Deleting and creating subscription for Masakoff...");
-    }
+    if (isPrivate) await sendMessage(chatId, "⏳ Deleting and creating subscription for Masakoff...");
     const username = "Masakoff";
     await removeMarzbanUser(username);
-    if (isPrivate) {
-      const activeCheck = await kv.get(["subscription_process_active"]);
-      if (activeCheck.value !== true) {
-        await sendMessage(chatId, "Process stopped.");
-        return new Response("ok");
-      }
-    }
     const subData = await createMarzbanUser(username, PLAN);
-    if (isPrivate) {
-      const activeCheck = await kv.get(["subscription_process_active"]);
-      if (activeCheck.value !== true) {
-        await sendMessage(chatId, "Process stopped. Subscription created but not sent to channels.");
-        return new Response("ok");
-      }
-    }
     if (!subData) {
       if (isPrivate) await sendMessage(chatId, "❌ Failed to create subscription. Try later.");
-      if (isPrivate) await kv.set(["subscription_process_active"], false);
       return new Response("ok");
     }
     const happCode = await convertToHappCode(subData.link) || subData.link;
-    if (isPrivate) {
-      const activeCheck = await kv.get(["subscription_process_active"]);
-      if (activeCheck.value !== true) {
-        await sendMessage(chatId, "Process stopped. Subscription created but not sent.");
-        return new Response("ok");
-      }
-    }
     const trafficStr = PLAN.traffic_gb === 0 ? "Unlimited" : `${PLAN.traffic_gb} GB`;
     if (isPrivate) await sendMessage(chatId, `✅ Subscription created!\nID: ${username}\nExpires: ${subData.expiryDate}\nTraffic: ${trafficStr}\n\nCode:\n\`\`\`\n${happCode}\n\`\`\``);
     // Send to channels
@@ -424,7 +384,6 @@ serve(async (req) => {
         }
       }
     }
-    if (isPrivate) await kv.set(["subscription_process_active"], false);
   } catch (err) {
     console.error("Error handling update:", err);
   }
